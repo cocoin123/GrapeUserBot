@@ -46,90 +46,26 @@ class grapeapi:
 
     class prefix:
         @staticmethod
-        async def get_prefix() -> str:
-            db = grapeapi.db()
-            await db.connect()
-            await db.execute('CREATE TABLE IF NOT EXISTS prefix (prefix TEXT)')
-            await db.commit()
-            row = await db.execute("SELECT prefix FROM prefix")
-            await db.close()
-            if row:
-                return row[0]
+        def get_prefix() -> str:
+            if not os.path.isfile("plugins/prefix"):
+                with open("plugins/prefix", "w") as file:
+                    file.write("!")
+                    file.close()
+                    return "!"
             else:
-                return "!"
+                with open("plugins/prefix", "r") as file:
+                    return file.read()
 
         @staticmethod
         async def set_prefix(prefix) -> bool:
-            db = grapeapi.db()
-            await db.connect()
-            await db.execute('CREATE TABLE IF NOT EXISTS prefix (prefix TEXT)')
-            await db.commit()
-            await db.execute("INSERT INTO prefix (prefix) VALUES (?)", (prefix,))
-            await db.close()
-            return True
-
-    class modules:
-        def __init__(self):
-            self.modules = {}
-            self.commands = {}
-            self.files = {}
-            self.modules_count = len(self.modules)
-
-        @staticmethod
-        async def add_module(module_name: str, filename: str):
-            grapeapi.modules.modules[module_name] = filename
-
-        @staticmethod
-        def add_command(module_name: str, command_name: str, help_command: str):
-            grapeapi.modules.commands.setdefault(module_name, {})
-            grapeapi.modules.commands[module_name][command_name] = help_command
-
-        @staticmethod
-        def get_module_commands(module_name):
-            if module_name in grapeapi.modules.commands:
-                return grapeapi.modules.commands[module_name]
-            else:
-                return {}
-
-        @staticmethod
-        def get_file_by_module(module_name):
-            if module_name in grapeapi.modules.modules:
-                dir_name, file_name = os.path.split(grapeapi.modules.modules[module_name])
-                last_folder = os.path.basename(dir_name)
-                return os.path.join(last_folder, file_name)
-            else:
-                return None
-
-        @staticmethod
-        def add_file(module_name: str, file_name: str):
-            grapeapi.modules.files.setdefault(module_name, {})
-            var = grapeapi.modules.files[module_name][file_name]
-
-        @staticmethod
-        def load_module(link):
-            import requests
-            filename = os.path.basename(link)
-            code = requests.get(link).text
-            return filename, code
-
-        @staticmethod
-        def upload_module(module_name: str):
-            if module_name in grapeapi.modules.modules:
-                return grapeapi.modules.modules[module_name]
-            else:
-                return None
-
-        @staticmethod
-        def remove_module(module_name: str):
-            if module_name in grapeapi.modules.modules:
-                try:
-                    os.remove(grapeapi.modules.modules[module_name])
+            try:
+                with open("plugins/prefix", "w") as file:
+                    file.write(prefix)
+                    file.close()
                     return True
-                except Exception as e:
-                    print(e)
-                    return False
-            else:
-                return None
+
+            except:
+                return False
 
     class db:
         def __init__(self):
@@ -137,7 +73,7 @@ class grapeapi:
 
         async def connect(self):
             import aiosqlite
-            self.conn = await aiosqlite.connect('grape.db')
+            self.conn = await aiosqlite.connect('files/grape.db')
 
         async def close(self):
             await self.conn.close()
@@ -148,3 +84,42 @@ class grapeapi:
 
         async def commit(self):
             await self.conn.commit()
+
+
+class command:
+    def __init__(self, command_: str, desc: str):
+        self.command = command_
+        self.desc = desc
+
+
+class module:
+    def __init__(self, name: str, desc: str, file: str, version: float, commands: list):
+        self.name = name
+        self.desc = desc
+        self.file = file
+        self.version = version
+        self.commands = commands
+
+    def get_commands(self):
+        commands = []
+        for command_ in self.commands:
+            commands.append(command_)
+        return commands
+
+
+class modules_actions:
+    def __init__(self):
+        self.modules = []
+
+    def get_modules(self):
+        return self.modules
+
+    def add_module(self, module: module):
+        self.modules.append(module)
+
+    def get_module(self, module_name: str):
+        for module in self.modules:
+            if module.name == module_name:
+                return module
+
+        return None
