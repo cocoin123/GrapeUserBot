@@ -158,7 +158,7 @@ class GrapeUserBot:
 
 if __name__ == "__main__":
     bot = GrapeUserBot()
-    if os.path.isfile("restart.txt"):
+    if not os.path.isfile("restart.txt"):
         asyncio.run(bot.requirements_load())
         bot.update()
 
