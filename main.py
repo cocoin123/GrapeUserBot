@@ -38,7 +38,6 @@ class GrapeUserBot:
         ]
 
         for lib in tqdm(requirements, desc="Installing libraries..."):
-            print("installing {}".format(lib))
             await grapeapi.import_library(lib)
         await GrapeUserBot.cc()
 
