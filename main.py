@@ -12,8 +12,8 @@ class GrapeUserBot:
             "id": None,
             "hash": None
         }
-        self.version = float(open("version.txt", "r").read())
-        self.changelog = "[+] initial userbot release"
+        self.version = float(open("files/version.txt", "r").read())
+        self.changelog = "[+] updated api\n[+] connected to website\n[+] modules actions"
 
     @staticmethod
     async def cc():
@@ -25,7 +25,7 @@ class GrapeUserBot:
         print("progressbar installing...")
 
         await grapeapi.import_library("tqdm")
-        GrapeUserBot.cc()
+        await GrapeUserBot.cc()
         from tqdm import tqdm
 
         requirements = [
@@ -34,13 +34,13 @@ class GrapeUserBot:
             "aiogram==2.25.2",
             "requests",
             "colorama",
-            "TgCrypto",
+            "TgCrypto"
         ]
 
         for lib in tqdm(requirements, desc="Installing libraries..."):
             print("installing {}".format(lib))
             await grapeapi.import_library(lib)
-        GrapeUserBot.cc()
+        await GrapeUserBot.cc()
 
     @staticmethod
     def check_update() -> bool:
@@ -49,7 +49,7 @@ class GrapeUserBot:
 
         print(Fore.GREEN + "Checking updates...")
         try:
-            get_file = requests.get(f"https://raw.githubusercontent.com/fimkov/GrapeUserBot/main/version.txt",
+            get_file = requests.get(f"https://raw.githubusercontent.com/fimkov/GrapeUserBot/main/files/version.txt",
                                     timeout=15)
         except requests.exceptions.ConnectTimeout:
             print(Fore.RED + "Check update failed")
@@ -77,7 +77,7 @@ class GrapeUserBot:
                 "api.py",
                 "main.py",
                 "plugins/main.py",
-                "version.txt"
+                "files/version.txt"
             ]
 
             for file in tqdm(files, desc="Updating..."):
@@ -97,13 +97,13 @@ class GrapeUserBot:
         import pyrogram
         from colorama import Fore as F
 
-        if os.path.isfile("GrapeUserBot.session"):
+        if os.path.isfile("files/GrapeUserBot.session"):
             print(F.GREEN + "Session found")
             if os.path.isfile("GrapeUserBot.session-journal"):
                 os.remove("GrapeUserBot.session-journal")
                 print(F.GREEN + "Session journal removed")
 
-            self.client = pyrogram.Client("GrapeUserBot", plugins=dict(root="plugins"))
+            self.client = pyrogram.Client("GrapeUserBot", plugins=dict(root="plugins"), workdir="files")
         else:
             print(F.YELLOW + "Session not found")
             self.api["id"] = input(F.WHITE + "Enter your api id: ")
@@ -117,10 +117,14 @@ class GrapeUserBot:
                 app_version="10.10.1",
                 lang_code="en",
                 plugins=dict(root="plugins"),
-                parse_mode=pyrogram.enums.ParseMode.HTML
+                parse_mode=pyrogram.enums.ParseMode.HTML,
+                workdir="files"
             )
             print(F.GREEN + "Session created")
 
+        print(F.GREEN + "Running session...")
+        await self.client.start()
+        await self.cc()
         if os.path.isfile("restart.txt"):
             f = open("restart.txt", "r")
             chat_id = f.read()
@@ -135,9 +139,6 @@ class GrapeUserBot:
                                                    f"<b>GrapeUserBot rebooted successfully, but an error occurred while "
                                                    f"sending a message\n\nLOG:</b> {e}")
 
-        print(F.GREEN + "Running session...")
-        await self.client.start()
-        await self.cc()
         print(F.MAGENTA + "   ____                      _   _               ____        _   ")
         print(F.LIGHTCYAN_EX + "  / ___|_ __ __ _ _ __   ___| | | |___  ___ _ __| __ )  ___ | |_ ")
         print(F.MAGENTA + "  / ___|_ __ __ _ _ __   ___| | | |___  ___ _ __| __ )  ___ | |_ ")
@@ -146,8 +147,8 @@ class GrapeUserBot:
         print(F.LIGHTCYAN_EX + "  \____|_|  \__,_| .__/ \___|\___/|___/\___|_|  |____/ \___/ \__|")
         print(F.MAGENTA + "                 |_|")
         print("")
-        print(F.LIGHTCYAN_EX + f"for get modules - {await grapeapi.prefix.get_prefix()}help")
-        print(F.MAGENTA + f"for get bot info - {await grapeapi.prefix.get_prefix()}bot")
+        print(F.LIGHTCYAN_EX + f"for get modules - {grapeapi.prefix.get_prefix()}help")
+        print(F.MAGENTA + f"for get bot info - {grapeapi.prefix.get_prefix()}bot")
         print("")
         print(F.LIGHTCYAN_EX + "changelog:\n" + F.MAGENTA + self.changelog + "\n")
         print(F.LIGHTCYAN_EX + "subscribe https://t.me/GrapeUserBot")
