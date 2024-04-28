@@ -47,19 +47,19 @@ class grapeapi:
     class prefix:
         @staticmethod
         def get_prefix() -> str:
-            if not os.path.isfile("plugins/prefix"):
-                with open("plugins/prefix", "w") as file:
+            if not os.path.isfile("files/prefix"):
+                with open("files/prefix", "w") as file:
                     file.write("!")
                     file.close()
                     return "!"
             else:
-                with open("plugins/prefix", "r") as file:
+                with open("files/prefix", "r") as file:
                     return file.read()
 
         @staticmethod
         async def set_prefix(prefix) -> bool:
             try:
-                with open("plugins/prefix", "w") as file:
+                with open("files/prefix", "w") as file:
                     file.write(prefix)
                     file.close()
                     return True
@@ -107,18 +107,21 @@ class module:
         return commands
 
 
+modules = []
+
+
 class modules_actions:
-    def __init__(self):
-        self.modules = []
+    @staticmethod
+    def get_modules():
+        return modules
 
-    def get_modules(self):
-        return self.modules
+    @staticmethod
+    def add_module(module: module):
+        modules.append(module)
 
-    def add_module(self, module: module):
-        self.modules.append(module)
-
-    def get_module(self, module_name: str):
-        for module in self.modules:
+    @staticmethod
+    def get_module(module_name: str):
+        for module in modules:
             if module.name == module_name:
                 return module
 
