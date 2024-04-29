@@ -1,3 +1,5 @@
+import logging
+
 from pyrogram import Client, filters
 from api import grapeapi
 from api import command, modules_actions, module
@@ -38,7 +40,7 @@ async def bot_info(client, message):
         await message.reply_photo(photo="logo.jpg", caption=text)
         await message.delete()
     except Exception as e:
-        print(e)
+        logging.error(e)
         await message.edit(text=text, disable_web_page_preview=True)
 
 
@@ -90,7 +92,8 @@ async def modules_helper(_, message):
 async def load_module(client, message):
     try:
         module_for_load = message.command[1]
-    except:
+    except Exception as e:
+        logging.error(e)
         module_for_load = None
 
     if module_for_load:
@@ -104,11 +107,13 @@ async def load_module(client, message):
         await message.edit("<b>getting module...</b>")
         try:
             request_module = requests.get(module_for_load, timeout=10)
-        except requests.exceptions.Timeout:
+        except requests.exceptions.Timeout as e:
+            logging.error(e)
             await message.edit("<b>timeout error</b>")
             return
 
-        except requests.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError as e:
+            logging.error(e)
             await message.edit("<b>connection error</b>")
             return
 
@@ -117,7 +122,8 @@ async def load_module(client, message):
             with open('plugins/' + module_for_load.split('/')[-1], 'w+') as file:
                 file.write(request_module.text)
                 file.close()
-        except:
+        except Exception as e:
+            logging.error(e)
             await message.edit("<b>error loading module</b>")
             return
 
@@ -132,7 +138,8 @@ async def load_module(client, message):
 
         try:
             await client.download_media(message.reply_to_message.document, file_name='plugins/')
-        except:
+        except Exception as e:
+            logging.error(e)
             await message.edit("<b>error loading module</b>")
             return
 
@@ -144,7 +151,8 @@ async def load_module(client, message):
 async def upload_module(client, message):
     try:
         module_for_upload = message.command[1]
-    except:
+    except Exception as e:
+        logging.error(e)
         await message.edit("<b>need module name</b>")
         return
 
@@ -174,15 +182,16 @@ async def upload_module(client, message):
                                                           commands_formated))
 
     except Exception as e:
+        logging.error(e)
         await message.edit("<b>sending module error</b>")
-        print(e)
 
 
 @Client.on_message(filters.command("rm", grapeapi.prefix.get_prefix()) & filters.me)
 async def remove_module(client, message):
     try:
         module_for_remove = message.command[1]
-    except:
+    except Exception as e:
+        logging.error(e)
         await message.edit("<b>module name not found</b>")
         return
 
@@ -194,12 +203,19 @@ async def remove_module(client, message):
     await message.edit("successfully removed. rebooting...")
     await grapeapi.restart(message)
 
+
+@Client.on_message(filters.command("restart", grapeapi.prefix.get_prefix()) & filters.me)
+async def restart(_, message):
+    await grapeapi.restart(message)
+
+
 base_module = module("base", "base of GrapeUserBot", str(__file__), 1.0, [
     command("bot", "get info about bot"),
     command("help", "get info about commands or command"),
     command("lm", "load module by link or name or reply to file"),
     command("um", "like argument get module name. upload module to chat"),
-    command("rm", "like argument get module name. remove module")
+    command("rm", "like argument get module name. remove module"),
+    command("restart", "restart userbot")
 ])
 
 modules_actions.add_module(base_module)
