@@ -91,6 +91,7 @@ class GrapeUserBot:
                     f.write(get_file.text.replace('\r\n', '\n'))
 
             logging.info("updated successfully")
+            grapeapi.reboot()
 
     async def main(self):
         logging.info("starting userbot...")
