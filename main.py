@@ -88,7 +88,7 @@ class GrapeUserBot:
                     return
 
                 with open(file, "w+", encoding="utf-8") as f:
-                    f.write(get_file.text)
+                    f.write(get_file.text.replace('\r\n', '\n'))
 
             logging.info("updated successfully")
 
