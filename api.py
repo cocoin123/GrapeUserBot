@@ -1,4 +1,7 @@
+import logging
 import os
+
+logging_mode = 1
 
 
 class grapeapi:
@@ -84,6 +87,14 @@ class grapeapi:
 
         async def commit(self):
             await self.conn.commit()
+
+    class logging:
+        def __init__(self):
+            if logging_mode == 1:
+                logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                                    filename="files/grape.log", filemode="w+")
+            elif logging_mode == 2:
+                logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s - %(asctime)%')
 
 
 class command:
