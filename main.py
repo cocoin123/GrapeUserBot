@@ -1,6 +1,6 @@
 import asyncio
 import os.path
-import sys
+import sys, logging
 
 from api import grapeapi
 
@@ -22,7 +22,7 @@ class GrapeUserBot:
 
     @staticmethod
     async def requirements_load(debug: bool = False):
-        print("progressbar installing...")
+        logging.info("progressbar installing...")
 
         await grapeapi.import_library("tqdm")
         await GrapeUserBot.cc()
@@ -46,23 +46,23 @@ class GrapeUserBot:
         import requests
         from colorama import Fore
 
-        print(Fore.GREEN + "Checking updates...")
+        logging.info("Checking updates...")
         try:
             get_file = requests.get(f"https://raw.githubusercontent.com/fimkov/GrapeUserBot/main/files/version.txt",
                                     timeout=15)
         except requests.exceptions.ConnectTimeout:
-            print(Fore.RED + "Check update failed")
+            logging.critical("check update failed")
             return False
 
         if get_file.status_code == 200:
             if float(get_file.text) > GrapeUserBot().version:
-                print(Fore.YELLOW + "Update available")
+                logging.info("update available")
                 return True
             else:
-                print(Fore.GREEN + "Updates not found")
+                logging.info("updates not found")
                 return False
         else:
-            print(Fore.RED + "Check update failed")
+            logging.critical("check update failed")
             return False
 
     @staticmethod
@@ -84,27 +84,29 @@ class GrapeUserBot:
                     get_file = requests.get(f"https://raw.githubusercontent.com/fimkov/GrapeUserBot/main/{file}",
                                             timeout=15)
                 except requests.exceptions.ConnectTimeout:
-                    print(Fore.RED + "Update failed")
+                    logging.critical("update failed")
                     return
 
                 with open(file, "w+", encoding="utf-8") as f:
                     f.write(get_file.text)
 
-            print(Fore.GREEN + "Update successful")
+            logging.info("updated successfully")
 
     async def main(self):
+        logging.info("starting userbot...")
         import pyrogram
         from colorama import Fore as F
 
-        if os.path.isfile("files/GrapeUserBot.session"):
-            print(F.GREEN + "Session found")
-            if os.path.isfile("GrapeUserBot.session-journal"):
-                os.remove("GrapeUserBot.session-journal")
-                print(F.GREEN + "Session journal removed")
+        if os.path.isfile("GrapeUserBot.session-journal"):
+            os.remove("GrapeUserBot.session-journal")
+            logging.info("Session journal removed")
 
+        if os.path.isfile("files/GrapeUserBot.session"):
+            logging.info("session file found")
             self.client = pyrogram.Client("GrapeUserBot", plugins=dict(root="plugins"), workdir="files")
+            logging.info("session connected")
         else:
-            print(F.YELLOW + "Session not found")
+            logging.critical("session file not found")
             self.api["id"] = input(F.WHITE + "Enter your api id: ")
             self.api["hash"] = input(F.WHITE + "Enter your api hash: ")
             self.client = pyrogram.Client(
@@ -119,10 +121,11 @@ class GrapeUserBot:
                 parse_mode=pyrogram.enums.ParseMode.HTML,
                 workdir="files"
             )
-            print(F.GREEN + "Session created")
+            logging.info("session created")
 
-        print(F.GREEN + "Running session...")
+        logging.info("running session...")
         await self.client.start()
+        logging.info("session started")
         await self.cc()
         if os.path.isfile("restart.txt"):
             f = open("restart.txt", "r")
@@ -137,6 +140,7 @@ class GrapeUserBot:
                 await self.client.send_message("me",
                                                    f"<b>GrapeUserBot rebooted successfully, but an error occurred while "
                                                    f"sending a message\n\nLOG:</b> {e}")
+            logging.info("restart message sended")
 
         print(F.MAGENTA + "   ____                      _   _               ____        _   ")
         print(F.LIGHTCYAN_EX + "  / ___|_ __ __ _ _ __   ___| | | |___  ___ _ __| __ )  ___ | |_ ")
@@ -149,17 +153,20 @@ class GrapeUserBot:
         print(F.LIGHTCYAN_EX + f"for get modules - {grapeapi.prefix.get_prefix()}help")
         print(F.MAGENTA + f"for get bot info - {grapeapi.prefix.get_prefix()}bot")
         print("")
-        print(F.LIGHTCYAN_EX + "changelog:\n" + F.MAGENTA + self.changelog + "\n")
+        print(F.LIGHTCYAN_EX + "version: " + str(self.version) + "\n")
+        print(F.MAGENTA + "changelog:\n" + F.LIGHTCYAN_EX + self.changelog + "\n")
+        print(F.MAGENTA + "website: https://grapeuserbot.tiiny.site/")
         print(F.LIGHTCYAN_EX + "subscribe https://t.me/GrapeUserBot")
         await pyrogram.idle()
         await self.client.stop()
 
 
 if __name__ == "__main__":
+    grapeapi.logging()
     bot = GrapeUserBot()
     if not os.path.isfile("restart.txt"):
         asyncio.run(bot.requirements_load())
         bot.update()
 
-    print("Connecting grape api...")
+    logging.info("Connecting grape api...")
     asyncio.run(bot.main())
