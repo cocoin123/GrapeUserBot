@@ -28,7 +28,7 @@ async def bot_info(client, message):
 
 <pre>
  | Owner: {me.mention}
- | Version: {float(open("files/version.txt", "r").read())} BETA TEST
+ | Version: {float(open("files/version.txt", "r").read())}
  | System: {system} 
  | RAM: {b2mb(psutil.virtual_memory().total - psutil.virtual_memory().available)} / {b2mb(psutil.virtual_memory().total)} ({psutil.virtual_memory().percent}%)
  | Prefix: {grapeapi.prefix.get_prefix()}
