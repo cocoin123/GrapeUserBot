@@ -1,5 +1,5 @@
 @echo off
-echo fimkov production
+echo userbot by fimkov
 echo GrapeUserBot
 python main.py
 pause
