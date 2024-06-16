@@ -98,7 +98,7 @@ async def load_module(client, message):
 
     if module_for_load:
         if not module_for_load.startswith("https://" or "http://"):
-            module_for_load = "https://raw.githubusercontent.com/fimkov/GrapeUserBotModules/main/" + module_for_load + ".py"
+            module_for_load = f"https://raw.githubusercontent.com/fimkov/GrapeUserBotModules/main/{module_for_load}.py"
 
         if "raw.githubusercontent.com" not in module_for_load:
             await message.edit("<b>only github support</b>")
